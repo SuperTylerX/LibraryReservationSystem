@@ -1,16 +1,11 @@
 package pojo;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import com.alibaba.fastjson.annotation.JSONField;
 
-@XmlRootElement(name = "user")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class User {
-    @XmlElement
     int userId;
     String username;
+    @JSONField(serialize=false)
     String password;
     String role;
 

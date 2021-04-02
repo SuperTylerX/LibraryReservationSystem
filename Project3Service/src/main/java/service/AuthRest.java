@@ -1,18 +1,17 @@
 package service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import impl.UserManagerImpl;
 import interfacedef.UserManager;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import tools.network.Http;
+
+import pojo.User;
 import tools.network.ReCaptcha;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
+
 
 @Path("auth")
 public class AuthRest {
@@ -23,55 +22,53 @@ public class AuthRest {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response login(@FormParam("username") String username, @FormParam("password") String password, @FormParam("captchaToken") String captchaToken) {
-
-        // TODO 1: Check Captcha
-        ReCaptcha.captchaValidate(captchaToken); // (Not Completed...)
-
-        // TODO 2: Check Username and password
+        // 1: Check Captcha
+        if (!ReCaptcha.captchaValidate(captchaToken)) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("code", 401);
+            jsonObject.put("message", "Challenge failed");
+            return Response.ok().entity(jsonObject).header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
+        // 2: Check Username and password
         UserManager userManager = UserManagerImpl.getInstance();
-        userManager.login(username, password); // (Not Completed...)
-
-        // TODO 3: Return JSON
-        // success: {
-        //      code: 200,
-        //      token: String
-        // }
-
-        // fail: {
-        //      code: 400/401,
-        //      message: "Username Password incorrect/ Challenge failed"
-        //}
-
-        return Response.ok()
-                .entity(null)
-                .header("Access-Control-Allow-Origin", "*")
-                .build();
-
+        String token = userManager.login(username, password);
+        if (token == null) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("code", 400);
+            jsonObject.put("message", "Username Password incorrect");
+            return Response.ok().entity(jsonObject).header("Access-Control-Allow-Origin", "*")
+                    .build();
+        } else {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("code", 200);
+            jsonObject.put("token", token);
+            return Response.ok().entity(jsonObject).header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
     }
 
     @GET
     @Path("user")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserInfo(@HeaderParam("Authorization") String token) {
-
-        /*
-         * return json
-         *  success: {
-         *      code: 200
-         *      data: {
-         *          userId: number,
-         *          userRole: string
-         *      }
-         * }
-         *
-         * fail: {
-         *      code: 400,
-         *      message: "Token expired/ Token not validated"
-         * }
-         *
-         * */
+        UserManager userManager = UserManagerImpl.getInstance();
+        int userId = userManager.verifyToken(token);
+        if (userId < 0) {
+            JSONObject jsonObjectFailed = new JSONObject();
+            jsonObjectFailed.put("code", 400);
+            jsonObjectFailed.put("message", "Token expired/ Token not validated");
+            return Response.ok()
+                    .entity(jsonObjectFailed)
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
+        User user = userManager.getUserInfo(userId);
+        JSONObject jsonObjectSuccess = new JSONObject();
+        jsonObjectSuccess.put("code", 200);
+        jsonObjectSuccess.put("data", user);
         return Response.ok()
-                .entity(null)
+                .entity(jsonObjectSuccess)
                 .header("Access-Control-Allow-Origin", "*")
                 .build();
     }
