@@ -8,6 +8,7 @@ import interfacedef.UserManager;
 
 import pojo.User;
 import tools.encryption.Encrypt;
+
 import java.util.Date;
 
 public class UserManagerImpl implements UserManager {
@@ -18,9 +19,10 @@ public class UserManagerImpl implements UserManager {
         return userManager;
     }
 
-    private UserManagerImpl(){
+    private UserManagerImpl() {
 
     }
+
     /**
      * @param username is the entered username
      * @param password is the entered password
@@ -63,21 +65,17 @@ public class UserManagerImpl implements UserManager {
         String[] tokenArr = token.split("\\.");
         String newSignature = Encrypt.sha256EncryptSalt(tokenArr[0] + "." + tokenArr[1], AppConfig.JWT_SECRET);
         assert newSignature != null;
-        if (newSignature.equals(tokenArr[2])) {
-            String payload = Encrypt.base642string(tokenArr[1]);
-
-            JSONObject jsonObject = JSON.parseObject(payload);
-            // check the token is expired or not
-            Date date = new Date();
-            if (date.getTime() > jsonObject.getLong("exp")) {
-                return -1;
-            } else {
-                return jsonObject.getIntValue("userId");
-            }
-
-        } else {
-            return -1;
+        if (!newSignature.equals(tokenArr[2])) {
+            return -1;  // signature doesn't match
         }
+        String payload = Encrypt.base642string(tokenArr[1]);
+        JSONObject jsonObject = JSON.parseObject(payload);
+        // check the token is expired or not
+        Date date = new Date();
+        if (date.getTime() > jsonObject.getLong("exp")) {
+            return -2;  // token Expired
+        }
+        return jsonObject.getIntValue("userId");
     }
 
     private String tokenGen(int userId) {

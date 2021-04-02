@@ -14,9 +14,7 @@ public class ReCaptcha {
         map.put("secret", AppConfig.RECAPTCHA_SERVER_SECRET);
         map.put("response", captchaToken);
         String result = Http.sendFormPost("https://www.recaptcha.net/recaptcha/api/siteverify", map);
-        System.out.println(result);
         JSONObject jsonObject = JSON.parseObject(result);
         return jsonObject.getBooleanValue("success");
-
     }
 }

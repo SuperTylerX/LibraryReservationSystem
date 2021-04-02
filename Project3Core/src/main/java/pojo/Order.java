@@ -1,14 +1,7 @@
 package pojo;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement(name = "order")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Order {
-    @XmlElement
+
     int orderId;
     int userId;
     int bookId;

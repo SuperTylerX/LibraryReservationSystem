@@ -17,7 +17,6 @@
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.11" level="project" />
     <orderEntry type="module" module-name="Project3Core" />
     <orderEntry type="library" name="Maven: com.alibaba:fastjson:1.2.73" level="project" />
-    <orderEntry type="library" name="Maven: org.codehaus.jettison:jettison:1.4.1" level="project" />
     <orderEntry type="module" module-name="Project3Persistence" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.34.0" level="project" />
   </component>

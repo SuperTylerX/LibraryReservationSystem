@@ -22,30 +22,25 @@ public class AuthRest {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response login(@FormParam("username") String username, @FormParam("password") String password, @FormParam("captchaToken") String captchaToken) {
+        JSONObject responseJson = new JSONObject();
         // 1: Check Captcha
         if (!ReCaptcha.captchaValidate(captchaToken)) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("code", 401);
-            jsonObject.put("message", "Challenge failed");
-            return Response.ok().entity(jsonObject).header("Access-Control-Allow-Origin", "*")
-                    .build();
+            responseJson.put("code", 401);
+            responseJson.put("message", "Challenge failed");
+            return Response.ok().entity(responseJson.toJSONString()).build();
         }
         // 2: Check Username and password
         UserManager userManager = UserManagerImpl.getInstance();
         String token = userManager.login(username, password);
         if (token == null) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("code", 400);
-            jsonObject.put("message", "Username Password incorrect");
-            return Response.ok().entity(jsonObject).header("Access-Control-Allow-Origin", "*")
-                    .build();
+            responseJson.put("code", 400);
+            responseJson.put("message", "Username or Password is incorrect");
         } else {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("code", 200);
-            jsonObject.put("token", token);
-            return Response.ok().entity(jsonObject).header("Access-Control-Allow-Origin", "*")
-                    .build();
+            responseJson.put("code", 200);
+            responseJson.put("token", token);
         }
+        return Response.ok().entity(responseJson.toJSONString()).build();
+
     }
 
     @GET
@@ -54,22 +49,26 @@ public class AuthRest {
     public Response getUserInfo(@HeaderParam("Authorization") String token) {
         UserManager userManager = UserManagerImpl.getInstance();
         int userId = userManager.verifyToken(token);
-        if (userId < 0) {
-            JSONObject jsonObjectFailed = new JSONObject();
-            jsonObjectFailed.put("code", 400);
-            jsonObjectFailed.put("message", "Token expired/ Token not validated");
+        JSONObject responseJson = new JSONObject();
+        if (userId == -1) {
+            responseJson.put("code", 400);
+            responseJson.put("message", "Token not validated");
             return Response.ok()
-                    .entity(jsonObjectFailed)
-                    .header("Access-Control-Allow-Origin", "*")
+                    .entity(responseJson.toJSONString())
+                    .build();
+        }
+        if (userId == -2) {
+            responseJson.put("code", 401);
+            responseJson.put("message", "Token expired");
+            return Response.ok()
+                    .entity(responseJson.toJSONString())
                     .build();
         }
         User user = userManager.getUserInfo(userId);
-        JSONObject jsonObjectSuccess = new JSONObject();
-        jsonObjectSuccess.put("code", 200);
-        jsonObjectSuccess.put("data", user);
+        responseJson.put("code", 200);
+        responseJson.put("data", user);
         return Response.ok()
-                .entity(jsonObjectSuccess)
-                .header("Access-Control-Allow-Origin", "*")
+                .entity(responseJson.toJSONString())
                 .build();
     }
 
