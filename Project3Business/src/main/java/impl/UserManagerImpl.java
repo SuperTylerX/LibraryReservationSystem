@@ -1,7 +1,14 @@
 package impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import config.AppConfig;
+import dao.UserDao;
 import interfacedef.UserManager;
+
 import pojo.User;
+import tools.encryption.Encrypt;
+import java.util.Date;
 
 public class UserManagerImpl implements UserManager {
 
@@ -11,74 +18,73 @@ public class UserManagerImpl implements UserManager {
         return userManager;
     }
 
+    private UserManagerImpl(){
+
+    }
     /**
      * @param username is the entered username
      * @param password is the entered password
      * @return String is token
-     * @description this method should verify the username and password.
+     * this method should verify the username and password.
      * generate the token if validated
      * otherwise return null
      */
     @Override
     public String login(String username, String password) {
-
-        // TODO 1: validate username and password in database
-
-        // TODO 2: generate token if validate, otherwise return null
-        //          may call tokenGen()
-        return null;
+        // 1: validate username and password in database
+        UserDao userDao = new UserDao();
+        String DBPassword = Encrypt.sha256EncryptSalt(password, AppConfig.PASSWORD_SALT);
+        User user = userDao.checkPassword(username, DBPassword);
+        // 2: generate token if validate, otherwise return null
+        if (user != null) {
+            return tokenGen(user.getUserId());
+        } else {
+            return null;
+        }
     }
 
     @Override
     public User getUserInfo(int userId) {
-        return null;
+        UserDao userDao = new UserDao();
+        return userDao.getUserById(userId);
     }
 
     /**
      * @param token is the token
      * @return int is the userID, -1 is not validated
-     * @description this method is used to validate the token
+     * this method is used to validate the token
      * return the userId if the token is validated
      * otherwise return -1
      */
     @Override
     public int verifyToken(String token) {
-
-        // TODO 1: use sha256 algorithm to recompute the signature and compare two signatures
+        //   use sha256 algorithm to recompute the signature and compare two signatures
         //      sha256EncryptSalt(Header + "." + Payload, secret)   ==  Signature
+        String[] tokenArr = token.split("\\.");
+        String newSignature = Encrypt.sha256EncryptSalt(tokenArr[0] + "." + tokenArr[1], AppConfig.JWT_SECRET);
+        assert newSignature != null;
+        if (newSignature.equals(tokenArr[2])) {
+            String payload = Encrypt.base642string(tokenArr[1]);
 
-        // TODO 2: convert base64 payload to plain text
-        //      check the token is expired or not
+            JSONObject jsonObject = JSON.parseObject(payload);
+            // check the token is expired or not
+            Date date = new Date();
+            if (date.getTime() > jsonObject.getLong("exp")) {
+                return -1;
+            } else {
+                return jsonObject.getIntValue("userId");
+            }
 
-        // TODO 3: return userId
-        return 0;
+        } else {
+            return -1;
+        }
     }
 
     private String tokenGen(int userId) {
-        /*
-        * Header: Header part is a json, need to Stringify
-        * {
-              "alg": "HS256",
-              "typ": "JWT"
-            }
-        * Payload: Payload part is a json, need to Stringify
-        *
-        * {
-              "userId": number,
-              "exp": number     // the exp date. should be validated in 1h( new Date() + 1h )
-             }
-        * Signature: Signature is
-              sha256EncryptSalt(
-                  string2Base64(header) + "." + string2Base64(payload),
-                  JWT_SECRET
-              )
-          *
-          * Final Token is like
-          *
-          *             Header + "." + Payload + "." + Signature
-          *
-        * */
-        return null;
+        final long HOUR = 3600 * 1000; // in milli-seconds.
+        String header = "{\"alg\": \"HS256\",\"typ\": \"JWT\"}";
+        String payload = "{\"userId\":" + userId + ",\"exp\":" + (new Date().getTime() + HOUR) + "}";
+        String signature = Encrypt.sha256EncryptSalt(Encrypt.string2Base64(header) + "." + Encrypt.string2Base64(payload), AppConfig.JWT_SECRET);
+        return Encrypt.string2Base64(header) + "." + Encrypt.string2Base64(payload) + "." + signature;
     }
-
 }

@@ -1,5 +1,7 @@
 package tools.network;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import config.AppConfig;
 
 import java.util.HashMap;
@@ -13,15 +15,8 @@ public class ReCaptcha {
         map.put("response", captchaToken);
         String result = Http.sendFormPost("https://www.recaptcha.net/recaptcha/api/siteverify", map);
         System.out.println(result);
-        // JSON may look like this
-        //{
-        //  "success": true,
-        //  "challenge_ts": "2021-03-29T01:13:30Z",
-        //  "hostname": "localhost"
-        //}
-        // TODO: return json.success
+        JSONObject jsonObject = JSON.parseObject(result);
+        return jsonObject.getBooleanValue("success");
 
-//        JSONObject json = new JSONObject(result);
-        return true;
     }
 }
