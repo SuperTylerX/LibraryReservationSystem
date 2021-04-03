@@ -15,6 +15,9 @@ public class Book {
     String publisher;
     String author;
     String publishedDate;
+    String title;
+    int stock;
+
 
     String description;
     String pageCount;
@@ -108,5 +111,21 @@ public class Book {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 }
