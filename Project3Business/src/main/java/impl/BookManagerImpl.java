@@ -6,7 +6,15 @@ import pojo.Book;
 import java.util.ArrayList;
 
 public class BookManagerImpl implements BookManager {
+    private static final BookManager bookManagerImpl = new BookManagerImpl();
 
+    public static BookManager getInstance() {
+        return bookManagerImpl;
+    }
+
+    private BookManagerImpl() {
+
+    }
     @Override
     public boolean addBook(Book book) {
         return false;
