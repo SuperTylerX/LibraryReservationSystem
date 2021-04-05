@@ -26,14 +26,14 @@ public class BookRest {
     @Path("search")
     @Produces(MediaType.APPLICATION_JSON)
     public ArrayList<Book> getBooksByTitle(@QueryParam("title") String title, @QueryParam("pageNum") int pageNum) {
-            return bookManager.getBooksByTitle(title, pageNum);
+        return bookManager.getBooksByTitle(title, pageNum);
     }
 
 
     @GET
     @Path("detail")
     @Produces(MediaType.APPLICATION_JSON)
-    public Book getBookById(@QueryParam("bookId") int bookId){
+    public Book getBookById(@QueryParam("bookId") int bookId) {
         return bookManager.getBookById(bookId);
     }
 

@@ -69,10 +69,10 @@ public class BookDAO {
     public ArrayList<Book> getBooksByPageNum(int pageNum) {
         ArrayList<Book> books = new ArrayList<>();
         Connection connection = DBConnection.getConnection();
-        String query =  "SELECT * FROM book ORDER BY book_id LIMIT ?,? ";
+        String query = "SELECT * FROM book ORDER BY book_id LIMIT ?,? ";
         try {
             PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1,  (pageNum-1)*AppConfig.ROWS_PAGE);
+            ps.setInt(1, (pageNum - 1) * AppConfig.ROWS_PAGE);
             ps.setInt(2, AppConfig.ROWS_PAGE);
 
             ResultSet rs = ps.executeQuery();
@@ -110,9 +110,9 @@ public class BookDAO {
             if (title == null || title.isEmpty()) {
                 ps.setString(1, "%");
             } else {
-                ps.setString(1, "%"+title+"%");
+                ps.setString(1, "%" + title + "%");
             }
-            ps.setInt(2,  (pageNum-1)*AppConfig.ROWS_PAGE);
+            ps.setInt(2, (pageNum - 1) * AppConfig.ROWS_PAGE);
             ps.setInt(3, AppConfig.ROWS_PAGE);
 
             ResultSet rs = ps.executeQuery();
@@ -172,5 +172,35 @@ public class BookDAO {
         }
     }
 
+    public Book getBookById(int bookId) {
+
+        Connection connection = DBConnection.getConnection();
+        String query = "SELECT * FROM book WHERE book_id=?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, bookId);
+
+            ResultSet rs = ps.executeQuery();
+            Book book = new Book();
+            if (rs.next()) {
+                book.setGoogleId(rs.getString("book_google_id"));
+                book.setIsbn(rs.getString("book_isbn"));
+                book.setTitle(rs.getString("book_title"));
+                book.setPublisher(rs.getString("book_publisher"));
+                book.setAuthor(rs.getString("book_author"));
+                book.setStock(rs.getInt("book_stock"));
+            }
+            return book;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
