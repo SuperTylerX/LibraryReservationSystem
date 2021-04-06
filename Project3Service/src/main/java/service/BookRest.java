@@ -17,16 +17,38 @@ public class BookRest {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ArrayList<Book> getBooks(@QueryParam("pageNum") int pageNum) {
-        return bookManager.getBooks(pageNum);
+    public String getBooks(@QueryParam("pageNum") int pageNum) {
+        ArrayList<Book> books = bookManager.getBooks(pageNum);
+        JSONObject response = new JSONObject();
+        if (books == null || books.isEmpty()) {
+            response.put("code", 500);
+        } else {
+            JSONObject data = new JSONObject();
+            data.put("total", books.size());
+            data.put("books", books);
+            response.put("code", 200);
+            response.put("data", data);
+        }
+        return response.toString();
     }
 
 
     @GET
     @Path("search")
     @Produces(MediaType.APPLICATION_JSON)
-    public ArrayList<Book> getBooksByTitle(@QueryParam("title") String title, @QueryParam("pageNum") int pageNum) {
-        return bookManager.getBooksByTitle(title, pageNum);
+    public String getBooksByTitle(@QueryParam("title") String title, @QueryParam("pageNum") int pageNum) {
+        ArrayList<Book> books = bookManager.getBooksByTitle(title, pageNum);
+        JSONObject response = new JSONObject();
+        if (books == null || books.isEmpty()) {
+            response.put("code", 500);
+        } else {
+            JSONObject data = new JSONObject();
+            data.put("total", books.size());
+            data.put("books", books);
+            response.put("code", 200);
+            response.put("data", data);
+        }
+        return response.toString();
     }
 
 
@@ -46,9 +68,9 @@ public class BookRest {
         JSONObject response = new JSONObject();
         boolean flag = bookManager.addBook(book);
         if (flag) {
-            response.put("status", 200);
+            response.put("code", 200);
         } else {
-            response.put("status", 500);
+            response.put("code", 500);
         }
         return response.toString();
     }
@@ -62,9 +84,9 @@ public class BookRest {
         JSONObject response = new JSONObject();
         boolean flag = bookManager.updateBook(book);
         if (flag) {
-            response.put("status", 200);
+            response.put("code", 200);
         } else {
-            response.put("status", 500);
+            response.put("code", 500);
         }
         return response.toString();
     }
@@ -76,9 +98,9 @@ public class BookRest {
         JSONObject response = new JSONObject();
         boolean flag = bookManager.deleteBook(bookId);
         if (flag) {
-            response.put("status", 200);
+            response.put("code", 200);
         } else {
-            response.put("status", 500);
+            response.put("code", 500);
         }
         return response.toString();
     }

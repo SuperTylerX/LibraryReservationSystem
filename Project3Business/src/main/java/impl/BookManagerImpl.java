@@ -1,19 +1,13 @@
 package impl;
 
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import config.AppConfig;
 import dao.BookDAO;
 import interfacedef.BookManager;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 import pojo.Book;
+import tools.network.Http;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class BookManagerImpl implements BookManager {
@@ -54,28 +48,13 @@ public class BookManagerImpl implements BookManager {
         String volumeId = book.getGoogleId();
 
         // Need to Access Google API
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet httpget = new HttpGet(AppConfig.GOOGLE_API_PATH + volumeId);
-            CloseableHttpResponse response = client.execute(httpget);
-
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != 200) {
-                throw new RuntimeException("Failed with HTTP error code : " + statusCode);
-            }
-
-            HttpEntity httpEntity = response.getEntity();
-            JSONObject obj = new JSONObject(EntityUtils.toString(httpEntity));
-            book.setDescription(obj.getJSONObject("volumeInfo").getString("description"));
-            book.setPageCount(String.valueOf(obj.getJSONObject("volumeInfo").getInt("pageCount")));
-            book.setCategories(obj.getJSONObject("volumeInfo").getJSONArray("categories").toString());
-            book.setImageLink(obj.getJSONObject("volumeInfo").getJSONObject("imageLinks").getString("medium"));
-            book.setLanguage(obj.getJSONObject("volumeInfo").getString("language"));
-
-            return book;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        JSONObject obj = JSON.parseObject(Http.sendGet(AppConfig.GOOGLE_API_PATH + volumeId));
+        book.setDescription(obj.getJSONObject("volumeInfo").getString("description"));
+        book.setPageCount(String.valueOf(obj.getJSONObject("volumeInfo").getIntValue("pageCount")));
+        book.setCategories(obj.getJSONObject("volumeInfo").getJSONArray("categories").toString());
+        book.setImageLink(obj.getJSONObject("volumeInfo").getJSONObject("imageLinks").getString("medium"));
+        book.setLanguage(obj.getJSONObject("volumeInfo").getString("language"));
+        return book;
     }
 
     @Override
