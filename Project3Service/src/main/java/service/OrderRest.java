@@ -3,8 +3,11 @@ package service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import impl.OrderMangerImpl;
+import impl.UserManagerImpl;
 import interfacedef.OrderManager;
+import interfacedef.UserManager;
 import pojo.Order;
+import pojo.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -13,10 +16,22 @@ import java.util.ArrayList;
 
 @Path("order")
 public class OrderRest {
+    UserManager userManager = UserManagerImpl.getInstance();
+    OrderManager orderManager = OrderMangerImpl.getInstance();
+
     @GET
     @Path("all")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllOrders(@HeaderParam("userId") String strUserId, @HeaderParam("role") String role) {
+    public Response getAllOrders(@HeaderParam("Authorization") String token) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
+        }
+        int userId = user.getUserId();
+        String role = user.getRole();
+
         JSONObject responseJson = new JSONObject();
         if (!role.equals("admin")) {
             responseJson.put("code", 401);
@@ -28,6 +43,7 @@ public class OrderRest {
 
         OrderManager orderManager = OrderMangerImpl.getInstance();
         ArrayList<Order> allOrders = orderManager.getAllOrder();
+        System.out.println(allOrders);
         responseJson.put("code", 200);
         responseJson.put("orders", allOrders);
         return Response.ok()
@@ -38,16 +54,15 @@ public class OrderRest {
     @GET
     @Path("user")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserOrder(@HeaderParam("userId") String strUserId, @HeaderParam("role") String role) {
-        JSONObject responseJson = new JSONObject();
-        if (!role.equals("admin")) {
-            responseJson.put("code", 401);
-            responseJson.put("message", "Permission Denied");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
+    public Response getUserOrder(@HeaderParam("Authorization") String token) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
         }
-        int userId = Integer.parseInt(strUserId);
+        int userId = user.getUserId();
+        JSONObject responseJson = new JSONObject();
         OrderManager orderManager = OrderMangerImpl.getInstance();
         ArrayList<Order> allOrders = orderManager.getMyOrder(userId);
         responseJson.put("code", 200);
@@ -59,8 +74,18 @@ public class OrderRest {
 
     @PUT
     @Path("modifyStatus")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response changeOrderStatus(@HeaderParam("userId") String strUserId, @HeaderParam("role") String role, @FormParam("status") String status, @FormParam("orderId") int orderId) {
+    public Response changeOrderStatus(@HeaderParam("Authorization") String token, @FormParam("status") String status, @FormParam("orderId") int orderId) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
+        }
+        int userId = user.getUserId();
+        String role = user.getRole();
+
         JSONObject responseJson = new JSONObject();
         if (!role.equals("admin")) {
             responseJson.put("code", 401);
@@ -69,8 +94,6 @@ public class OrderRest {
                     .entity(responseJson.toJSONString())
                     .build();
         }
-        int userId = Integer.parseInt(strUserId);
-        OrderManager orderManager = OrderMangerImpl.getInstance();
         boolean change = orderManager.changeOrder(orderId, status);
         if (change) {
             responseJson.put("code", 200);
@@ -90,61 +113,66 @@ public class OrderRest {
 
     @PUT
     @Path("modifyDate")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response changeOrderDate(@HeaderParam("userId") String strUserId, @HeaderParam("role") String role, @FormParam("pickupDate") long pickupDate, @FormParam("orderId") int orderId) {
+    public Response changeOrderDate(@HeaderParam("Authorization") String token, @FormParam("pickupDate") long pickupDate, @FormParam("orderId") int orderId) {
         JSONObject responseJson = new JSONObject();
-        if (!role.equals("admin")) {
-            responseJson.put("code", 401);
-            responseJson.put("message", "Permission Denied");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
         }
-        int userId = Integer.parseInt(strUserId);
-        OrderManager orderManager = OrderMangerImpl.getInstance();
-        boolean change = orderManager.changePickupDate(orderId, pickupDate);
+        int userId = user.getUserId();
+        String role = user.getRole();
+        boolean change;
+        if (role.equals("admin")) {
+            change = orderManager.changePickupDate(orderId, pickupDate);
+        }else {
+            change = orderManager.changePickupDateByUser(orderId, pickupDate, userId);
+        }
         if (change) {
             responseJson.put("code", 200);
             responseJson.put("message", "Order Pickup Date changed!");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
         } else {
             responseJson.put("code", 400);
             responseJson.put("message", "Order Pickup Date change failed");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
         }
+        return Response.ok()
+                .entity(responseJson.toJSONString())
+                .build();
     }
 
     @POST
     @Path("createOrder")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createOrder(@HeaderParam("userId") String strUserId, @HeaderParam("role") String role, @FormParam("pickupDate") long pickupDate, @FormParam("bookId") int bookId) {
-        JSONObject responseJson = new JSONObject();
-        if (!role.equals("admin")) {
-            responseJson.put("code", 401);
-            responseJson.put("message", "Permission Denied");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
+    public Response createOrder(@HeaderParam("Authorization") String token, @FormParam("pickupDate") long pickupDate, @FormParam("bookId") int bookId) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
         }
-        int userId = Integer.parseInt(strUserId);
+        int userId = user.getUserId();
+        String role = user.getRole();
+        JSONObject responseJson = new JSONObject();
+
         OrderManager orderManager = OrderMangerImpl.getInstance();
-        boolean create = orderManager.createOrder(pickupDate, bookId, userId);
-        if (create) {
+        System.out.println(pickupDate);
+        System.out.println(bookId);
+        System.out.println(userId);
+        int orderId = orderManager.createOrder(pickupDate, bookId, userId);
+        if (orderId != -1) {
             responseJson.put("code", 200);
             responseJson.put("message", "Order created");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
+            responseJson.put("orderId", orderId);
         } else {
             responseJson.put("code", 400);
             responseJson.put("message", "Create Order failed");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
         }
+        return Response.ok()
+                .entity(responseJson.toJSONString())
+                .build();
     }
 }

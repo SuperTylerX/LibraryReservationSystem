@@ -2,7 +2,6 @@ package impl;
 
 import dao.OrderDao;
 import interfacedef.OrderManager;
-import interfacedef.UserManager;
 import pojo.Order;
 
 import java.util.ArrayList;
@@ -13,44 +12,48 @@ public class OrderMangerImpl implements OrderManager {
     public static OrderManager getInstance() {
         return OrderMangerImpl;
     }
+
     private OrderMangerImpl() {
     }
 
 
     @Override
-    public boolean createOrder(long pickupDate, int bookId, int userId) {
-        OrderDao orderDao=new OrderDao();
-        boolean create=orderDao.createOrder("PROCESSING",userId,bookId,pickupDate);
-        return create;
+    public int createOrder(long pickupDate, int bookId, int userId) {
+        OrderDao orderDao = new OrderDao();
+        return orderDao.createOrder("PROCESSING", userId, bookId, pickupDate);
     }
 
     @Override
     public boolean changeOrder(int orderId, String status) {
-        OrderDao orderDao=new OrderDao();
-        boolean change=orderDao.changeStatus(status,orderId);
-        return change;
+        OrderDao orderDao = new OrderDao();
+        return orderDao.changeStatus(status, orderId);
     }
 
     @Override
     public boolean changePickupDate(int orderId, long pickupDate) {
-        OrderDao orderDao=new OrderDao();
-        boolean change=orderDao.changePickupDate(orderId,pickupDate);
-        return change;
+        OrderDao orderDao = new OrderDao();
+        return orderDao.changePickupDate(orderId, pickupDate);
+    }
+
+    @Override
+    public boolean changePickupDateByUser(int orderId, long pickupDate, int userId) {
+        OrderDao orderDao = new OrderDao();
+        return orderDao.changePickupDateByUser(orderId, pickupDate, userId);
     }
 
     @Override
     public ArrayList<Order> getMyOrder(int userId) {
-        ArrayList<Order>allOrders=new ArrayList<>();
-        OrderDao orderDao=new OrderDao();
-        allOrders=orderDao.getUserOrders(userId);
+        ArrayList<Order> allOrders = new ArrayList<>();
+        OrderDao orderDao = new OrderDao();
+        allOrders = orderDao.getUserOrders(userId);
         return allOrders;
     }
 
     @Override
     public ArrayList<Order> getAllOrder() {
-        ArrayList<Order>allOrders=new ArrayList<>();
-        OrderDao orderDao=new OrderDao();
-        allOrders=orderDao.getAllOrders();
+        ArrayList<Order> allOrders = new ArrayList<>();
+        OrderDao orderDao = new OrderDao();
+        allOrders = orderDao.getAllOrders();
         return allOrders;
     }
 

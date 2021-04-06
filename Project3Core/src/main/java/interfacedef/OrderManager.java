@@ -6,11 +6,13 @@ import java.util.ArrayList;
 
 public interface OrderManager {
 
-    public boolean createOrder(long pickupDate,int bookId,int userId);
+    public int createOrder(long pickupDate, int bookId, int userId);
 
     public boolean changeOrder(int orderId, String status);
 
     public boolean changePickupDate(int orderId, long pickupDate);
+
+    public boolean changePickupDateByUser(int orderId, long pickupDate, int userId);
 
     public ArrayList<Order> getMyOrder(int userId);
 
