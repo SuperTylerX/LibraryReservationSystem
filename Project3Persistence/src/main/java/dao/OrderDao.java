@@ -25,6 +25,8 @@ public class OrderDao {
                 order.setOrderId(rs.getInt("order_id"));
                 allOrders.add(order);
             }
+
+            ps.close();
             return allOrders;
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,6 +59,7 @@ public class OrderDao {
                 order.setOrderId(rs.getInt("order_id"));
                 allOrders.add(order);
             }
+
             return allOrders;
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,6 +114,7 @@ public class OrderDao {
             ps.setString(1, status);
             ps.setInt(2, order_id);
             int rs = ps.executeUpdate();
+
             return rs == 1;
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,6 +136,7 @@ public class OrderDao {
             ps.setLong(1, pickup_date);
             ps.setInt(2, order_id);
             int rs = ps.executeUpdate();
+
             return rs == 1;
         } catch (Exception e) {
             System.out.println("exp");
@@ -187,12 +192,12 @@ public class OrderDao {
                 try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         return generatedKeys.getInt(1);
-                    } else {
+                    } else {ps.close();
                         connection.close();
                         return -1;
                     }
                 }
-            }else {
+            }else {ps.close();
                 connection.close();
                 return -1;
             }

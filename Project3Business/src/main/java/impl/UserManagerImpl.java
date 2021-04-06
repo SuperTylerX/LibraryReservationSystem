@@ -45,6 +45,9 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
+    public static void main(String[] args) {
+        System.out.println(userManager.login("tianxiang","123456"));
+    }
     @Override
     public User getUserInfo(int userId) {
         UserDao userDao = new UserDao();

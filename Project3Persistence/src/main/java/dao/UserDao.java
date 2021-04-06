@@ -2,10 +2,7 @@ package dao;
 
 import pojo.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 public class UserDao {
 
@@ -21,15 +18,24 @@ public class UserDao {
             if (rs.next()) {
                 user.setUserId(rs.getInt("user_id"));
                 user.setUsername(rs.getString("user_username"));
+
                 return user;
             } else {
+                connection.close();
                 return null;
             }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
+
     //getUserById
     public User getUserById(int userId) {
         Connection connection = DBConnection.getConnection();
@@ -43,13 +49,21 @@ public class UserDao {
                 user.setUserId(rs.getInt("user_id"));
                 user.setUsername(rs.getString("user_username"));
                 user.setRole(rs.getString("user_role"));
+
                 return user;
             } else {
+                connection.close();
                 return null;
             }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
