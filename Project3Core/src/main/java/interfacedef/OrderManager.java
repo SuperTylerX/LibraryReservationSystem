@@ -14,10 +14,7 @@ public interface OrderManager {
 
     public ArrayList<Order> getMyOrder(int userId, int pageNum);
 
-    public int getMyOrderTotalNumber(int userId);
-
     public ArrayList<Order> getAllOrder(String type, int pageNum);
 
-    public int getAllOrderTotalNumber(String type, int pageNum);
 }
 

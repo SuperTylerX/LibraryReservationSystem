@@ -40,7 +40,7 @@ public class BookRest {
     public String getBooksByTitle(@QueryParam("title") String title, @QueryParam("pageNum") int pageNum) {
         ArrayList<Book> books = bookManager.getBooksByTitle(title, pageNum);
         JSONObject response = new JSONObject();
-        if (books == null || books.isEmpty()) {
+        if (books == null) {
             response.put("code", 500);
         } else {
             JSONObject data = new JSONObject();

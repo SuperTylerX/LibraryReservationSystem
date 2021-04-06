@@ -54,6 +54,7 @@ public class BookManagerImpl implements BookManager {
         book.setCategories(obj.getJSONObject("volumeInfo").getJSONArray("categories").toString());
         book.setImageLink(obj.getJSONObject("volumeInfo").getJSONObject("imageLinks").getString("medium"));
         book.setLanguage(obj.getJSONObject("volumeInfo").getString("language"));
+        book.setPublishedDate(obj.getJSONObject("volumeInfo").getString("publishedDate"));
         return book;
     }
 

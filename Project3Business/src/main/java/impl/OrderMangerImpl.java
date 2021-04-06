@@ -27,17 +27,9 @@ public class OrderMangerImpl implements OrderManager {
     }
 
     @Override
-    public int getMyOrderTotalNumber(int userId) {
-        return 0;
-    }
-
-    @Override
     public ArrayList<Order> getAllOrder(String type, int pageNum) {
         return null;
     }
 
-    @Override
-    public int getAllOrderTotalNumber(String type, int pageNum) {
-        return 0;
-    }
+
 }
