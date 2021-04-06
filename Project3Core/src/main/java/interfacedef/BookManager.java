@@ -18,4 +18,8 @@ public interface BookManager {
 
     boolean updateBook(Book book);
 
+    int getBooksNumber();
+
+    int getBooksNumberByTitle(String title);
+
 }

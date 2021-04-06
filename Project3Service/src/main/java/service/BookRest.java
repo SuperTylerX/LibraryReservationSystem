@@ -24,7 +24,8 @@ public class BookRest {
             response.put("code", 500);
         } else {
             JSONObject data = new JSONObject();
-            data.put("total", books.size());
+            int num = bookManager.getBooksNumber();
+            data.put("total", num);
             data.put("books", books);
             response.put("code", 200);
             response.put("data", data);
@@ -43,7 +44,8 @@ public class BookRest {
             response.put("code", 500);
         } else {
             JSONObject data = new JSONObject();
-            data.put("total", books.size());
+            int num = bookManager.getBooksNumberByTitle(title);
+            data.put("total", num);
             data.put("books", books);
             response.put("code", 200);
             response.put("data", data);

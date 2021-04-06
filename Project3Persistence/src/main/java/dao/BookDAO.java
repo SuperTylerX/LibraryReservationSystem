@@ -65,6 +65,25 @@ public class BookDAO {
         }
     }
 
+    public int getBooksNumber() {
+        Connection connection = DBConnection.getConnection();
+        String query;
+        query = "SELECT COUNT(*) FROM book";
+        try {
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            ResultSet rs = ps.executeQuery();
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public ArrayList<Book> getBooksByPageNum(int pageNum) {
         ArrayList<Book> books = new ArrayList<>();
@@ -100,6 +119,31 @@ public class BookDAO {
         }
     }
 
+    public int getBooksNumberByTitle(String title) {
+        Connection connection = DBConnection.getConnection();
+        String query;
+        query = "SELECT COUNT(*) FROM book WHERE book_title LIKE ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            if (title == null || title.isEmpty()) {
+                ps.setString(1, "%");
+            } else {
+                ps.setString(1, "%" + title + "%");
+            }
+            ResultSet rs = ps.executeQuery();
+            System.out.println(rs.getInt(1));
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public ArrayList<Book> getBooksByTitle(String title, int pageNum) {
         ArrayList<Book> books = new ArrayList<>();

@@ -58,6 +58,16 @@ public class BookManagerImpl implements BookManager {
     }
 
     @Override
+    public int getBooksNumber() {
+        return bookDAO.getBooksNumber();
+    }
+
+    @Override
+    public int getBooksNumberByTitle(String title) {
+        return bookDAO.getBooksNumberByTitle(title);
+    }
+
+    @Override
     public boolean updateBook(Book book) {
         return bookDAO.updateBook(book);
     }
