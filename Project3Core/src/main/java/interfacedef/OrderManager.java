@@ -10,6 +10,8 @@ public interface OrderManager {
 
     public boolean changeOrder(int orderId, String status);
 
+    public boolean changeOrderByUser(int orderId,int userId);
+
     public boolean changePickupDate(int orderId, long pickupDate);
 
     public boolean changePickupDateByUser(int orderId, long pickupDate, int userId);

@@ -46,7 +46,7 @@ public class UserManagerImpl implements UserManager {
     }
 
     public static void main(String[] args) {
-        System.out.println(userManager.login("tianxiang","123456"));
+        System.out.println(userManager.login("admin","888888"));
     }
     @Override
     public User getUserInfo(int userId) {

@@ -18,7 +18,6 @@ public class UserDao {
             if (rs.next()) {
                 user.setUserId(rs.getInt("user_id"));
                 user.setUsername(rs.getString("user_username"));
-
                 return user;
             } else {
                 connection.close();

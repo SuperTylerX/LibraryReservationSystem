@@ -30,6 +30,12 @@ public class OrderMangerImpl implements OrderManager {
     }
 
     @Override
+    public boolean changeOrderByUser(int orderId,int userId) {
+        OrderDao orderDao = new OrderDao();
+        return orderDao.changeStatusByUser(orderId,userId);
+    }
+
+    @Override
     public boolean changePickupDate(int orderId, long pickupDate) {
         OrderDao orderDao = new OrderDao();
         return orderDao.changePickupDate(orderId, pickupDate);

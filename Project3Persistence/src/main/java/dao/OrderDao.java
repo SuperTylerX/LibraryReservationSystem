@@ -105,6 +105,27 @@ public class OrderDao {
         }
     }
 
+public boolean changeStatusByUser( int order_id,int userId) {
+    Connection connection = DBConnection.getConnection();
+    try {
+        String query = "UPDATE orders SET order_status=? where (order_id=? and order_user_id=?)";
+        PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        ps.setString(1, "CANCELED");
+        ps.setInt(2, order_id);
+        ps.setInt(3, userId);
+        int rs = ps.executeUpdate();
+        return rs == 1;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }finally {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
     public boolean changeStatus(String status, int order_id) {
         Connection connection = DBConnection.getConnection();
 
@@ -159,11 +180,8 @@ public class OrderDao {
             ps.setInt(2, order_id);
             ps.setInt(3, userid);
             int rs = ps.executeUpdate();
-            System.out.println(rs+" res");
-
             return rs == 1;
         } catch (Exception e) {
-            System.out.println("exp");
             e.printStackTrace();
             return false;
         }finally {

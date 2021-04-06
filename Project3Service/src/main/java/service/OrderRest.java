@@ -87,28 +87,22 @@ public class OrderRest {
         String role = user.getRole();
 
         JSONObject responseJson = new JSONObject();
-        if (!role.equals("admin")) {
-            responseJson.put("code", 401);
-            responseJson.put("message", "Permission Denied");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
+        boolean change;
+        if (role.equals("admin")) {
+            change = orderManager.changeOrder(orderId, status);
+        } else {
+            change = orderManager.changeOrderByUser(orderId, userId);
         }
-        boolean change = orderManager.changeOrder(orderId, status);
         if (change) {
             responseJson.put("code", 200);
             responseJson.put("message", "Order status changed!");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
         } else {
             responseJson.put("code", 400);
             responseJson.put("message", "Order status change failed");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
         }
-
+        return Response.ok()
+                .entity(responseJson.toJSONString())
+                .build();
     }
 
     @PUT
@@ -128,7 +122,7 @@ public class OrderRest {
         boolean change;
         if (role.equals("admin")) {
             change = orderManager.changePickupDate(orderId, pickupDate);
-        }else {
+        } else {
             change = orderManager.changePickupDateByUser(orderId, pickupDate, userId);
         }
         if (change) {
