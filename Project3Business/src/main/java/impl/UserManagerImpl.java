@@ -77,8 +77,7 @@ public class UserManagerImpl implements UserManager {
         }
         return jsonObject.getIntValue("userId");
     }
-
-
+    
     private String tokenGen(int userId) {
         final long HOUR = 3600 * 1000; // in milli-seconds.
         String header = "{\"alg\": \"HS256\",\"typ\": \"JWT\"}";
