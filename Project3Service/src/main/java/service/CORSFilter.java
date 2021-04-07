@@ -8,9 +8,9 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class CORSFilter implements ContainerResponseFilter {
     @Override
-    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext){
+    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) {
         containerResponseContext.getHeaders().add("Access-Control-Allow-Origin", "*");
         containerResponseContext.getHeaders().add("Access-Control-Allow-Methods", "*");
-        containerResponseContext.getHeaders().add("Access-Control-Allow-Headers", "Authorization");
+        containerResponseContext.getHeaders().add("Access-Control-Allow-Headers", "Authorization, Content-Type");
     }
 }

@@ -129,9 +129,6 @@ public class OrderRest {
         JSONObject responseJson = new JSONObject();
 
         OrderManager orderManager = OrderMangerImpl.getInstance();
-        System.out.println(pickupDate);
-        System.out.println(bookId);
-        System.out.println(userId);
         int orderId = orderManager.createOrder(pickupDate, bookId, userId);
         if (orderId != -1) {
             responseJson.put("code", 200);

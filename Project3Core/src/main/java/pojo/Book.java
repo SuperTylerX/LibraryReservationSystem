@@ -1,16 +1,17 @@
 package pojo;
+
 public class Book {
 
     int bookId;
     String googleId;
+    String title;
     String isbn;
     String publisher;
     String author;
-    String publishedDate;
-    String title;
     int stock;
 
 
+    String publishedDate;
     String description;
     String pageCount;
     String categories;

@@ -131,7 +131,6 @@ public class BookDAO {
                 ps.setString(1, "%" + title + "%");
             }
             ResultSet rs = ps.executeQuery();
-            System.out.println(rs.getInt(1));
             return rs.getInt(1);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -227,6 +226,7 @@ public class BookDAO {
             ResultSet rs = ps.executeQuery();
             Book book = new Book();
             if (rs.next()) {
+                book.setBookId(rs.getInt("book_id"));
                 book.setGoogleId(rs.getString("book_google_id"));
                 book.setIsbn(rs.getString("book_isbn"));
                 book.setTitle(rs.getString("book_title"));
