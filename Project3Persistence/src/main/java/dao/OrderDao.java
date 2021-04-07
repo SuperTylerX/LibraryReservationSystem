@@ -31,7 +31,7 @@ public class OrderDao {
         } catch (Exception e) {
             e.printStackTrace();
             return allOrders;
-        }finally {
+        } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
@@ -64,7 +64,7 @@ public class OrderDao {
         } catch (Exception e) {
             e.printStackTrace();
             return allOrders;
-        }finally {
+        } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
@@ -96,7 +96,7 @@ public class OrderDao {
         } catch (Exception e) {
             e.printStackTrace();
             return allOrders;
-        }finally {
+        } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
@@ -105,27 +105,28 @@ public class OrderDao {
         }
     }
 
-public boolean changeStatusByUser( int order_id,int userId) {
-    Connection connection = DBConnection.getConnection();
-    try {
-        String query = "UPDATE orders SET order_status=? where (order_id=? and order_user_id=?)";
-        PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-        ps.setString(1, "CANCELED");
-        ps.setInt(2, order_id);
-        ps.setInt(3, userId);
-        int rs = ps.executeUpdate();
-        return rs == 1;
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
-    }finally {
+    public boolean changeStatusByUser(int order_id, int userId) {
+        Connection connection = DBConnection.getConnection();
         try {
-            connection.close();
-        } catch (SQLException e) {
+            String query = "UPDATE orders SET order_status=? where order_id=? and order_user_id=?";
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, "CANCELED");
+            ps.setInt(2, order_id);
+            ps.setInt(3, userId);
+            int rs = ps.executeUpdate();
+            return rs == 1;
+        } catch (Exception e) {
             e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
-}
+
     public boolean changeStatus(String status, int order_id) {
         Connection connection = DBConnection.getConnection();
 
@@ -140,7 +141,7 @@ public boolean changeStatusByUser( int order_id,int userId) {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        }finally {
+        } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
@@ -163,7 +164,7 @@ public boolean changeStatusByUser( int order_id,int userId) {
             System.out.println("exp");
             e.printStackTrace();
             return false;
-        }finally {
+        } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
@@ -171,7 +172,8 @@ public boolean changeStatusByUser( int order_id,int userId) {
             }
         }
     }
-    public boolean changePickupDateByUser(int order_id, long pickup_date,int userid) {
+
+    public boolean changePickupDateByUser(int order_id, long pickup_date, int userid) {
         Connection connection = DBConnection.getConnection();
         try {
             String query = "UPDATE orders SET order_pickup_date=? where( order_id=? and order_user_id=? );";
@@ -184,7 +186,7 @@ public boolean changeStatusByUser( int order_id,int userId) {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        }finally {
+        } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
@@ -195,10 +197,9 @@ public boolean changeStatusByUser( int order_id,int userId) {
 
     public int createOrder(String status, int userId, int bookId, long pickupDate) {
         Connection connection = DBConnection.getConnection();
-        PreparedStatement ps  = null;
         try {
             String query = "insert into orders(order_user_id, order_book_id, order_created_time, order_pickup_date,order_status) values (?,?,?,?,?); ";
-            ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, userId);
             ps.setInt(2, bookId);
             ps.setLong(3, new Date().getTime());
@@ -210,19 +211,21 @@ public boolean changeStatusByUser( int order_id,int userId) {
                 try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         return generatedKeys.getInt(1);
-                    } else {ps.close();
+                    } else {
+                        ps.close();
                         connection.close();
                         return -1;
                     }
                 }
-            }else {ps.close();
+            } else {
+                ps.close();
                 connection.close();
                 return -1;
             }
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
-        }finally {
+        } finally {
             try {
                 connection.close();
             } catch (SQLException e) {

@@ -20,7 +20,7 @@ public class OrderRest {
     OrderManager orderManager = OrderMangerImpl.getInstance();
 
     @GET
-    @Path("all")
+    @Path("list")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllOrders(@HeaderParam("Authorization") String token) {
         User user;
@@ -33,38 +33,14 @@ public class OrderRest {
         String role = user.getRole();
 
         JSONObject responseJson = new JSONObject();
-        if (!role.equals("admin")) {
-            responseJson.put("code", 401);
-            responseJson.put("message", "Permission Denied");
-            return Response.ok()
-                    .entity(responseJson.toJSONString())
-                    .build();
+
+        ArrayList<Order> allOrders;
+        if (role.equals("admin")) {
+            allOrders = orderManager.getAllOrder();
+        } else {
+            allOrders = orderManager.getMyOrder(userId);
         }
 
-        OrderManager orderManager = OrderMangerImpl.getInstance();
-        ArrayList<Order> allOrders = orderManager.getAllOrder();
-        System.out.println(allOrders);
-        responseJson.put("code", 200);
-        responseJson.put("orders", allOrders);
-        return Response.ok()
-                .entity(responseJson.toJSONString())
-                .build();
-    }
-
-    @GET
-    @Path("user")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserOrder(@HeaderParam("Authorization") String token) {
-        User user;
-        try {
-            user = TokenValidate.tokenValidate(token);
-        } catch (PermissionException e) {
-            return e.response;
-        }
-        int userId = user.getUserId();
-        JSONObject responseJson = new JSONObject();
-        OrderManager orderManager = OrderMangerImpl.getInstance();
-        ArrayList<Order> allOrders = orderManager.getMyOrder(userId);
         responseJson.put("code", 200);
         responseJson.put("orders", allOrders);
         return Response.ok()
@@ -138,7 +114,7 @@ public class OrderRest {
     }
 
     @POST
-    @Path("createOrder")
+    @Path("create")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createOrder(@HeaderParam("Authorization") String token, @FormParam("pickupDate") long pickupDate, @FormParam("bookId") int bookId) {
