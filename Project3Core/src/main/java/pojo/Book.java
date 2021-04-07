@@ -1,24 +1,17 @@
 package pojo;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement(name = "book")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Book {
-    @XmlElement
+
     int bookId;
     String googleId;
+    String title;
     String isbn;
     String publisher;
     String author;
-    String publishedDate;
-    String title;
     int stock;
 
 
+    String publishedDate;
     String description;
     String pageCount;
     String categories;
