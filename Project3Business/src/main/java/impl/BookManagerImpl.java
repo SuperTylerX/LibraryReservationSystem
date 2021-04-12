@@ -1,6 +1,7 @@
 package impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import config.AppConfig;
 import dao.BookDAO;
@@ -51,7 +52,8 @@ public class BookManagerImpl implements BookManager {
         JSONObject obj = JSON.parseObject(Http.sendGet(AppConfig.GOOGLE_API_PATH + volumeId));
         book.setDescription(obj.getJSONObject("volumeInfo").getString("description"));
         book.setPageCount(String.valueOf(obj.getJSONObject("volumeInfo").getIntValue("pageCount")));
-        book.setCategories(obj.getJSONObject("volumeInfo").getJSONArray("categories").toString());
+        JSONArray categories = obj.getJSONObject("volumeInfo").getJSONArray("categories");
+        book.setCategories(categories == null ? "[]" : categories.toString());
         book.setImageLink(obj.getJSONObject("volumeInfo").getJSONObject("imageLinks").getString("medium"));
         book.setLanguage(obj.getJSONObject("volumeInfo").getString("language"));
         book.setPublishedDate(obj.getJSONObject("volumeInfo").getString("publishedDate"));
