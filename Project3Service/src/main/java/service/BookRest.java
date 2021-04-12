@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import impl.BookManagerImpl;
 import interfacedef.BookManager;
 import pojo.Book;
+import pojo.User;
 
 import javax.ws.rs.*;
 import java.util.ArrayList;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("book")
 public class BookRest {
@@ -17,48 +19,91 @@ public class BookRest {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getBooks(@QueryParam("pageNum") int pageNum) {
-        ArrayList<Book> books = bookManager.getBooks(pageNum);
-        JSONObject response = new JSONObject();
-        if (books == null || books.isEmpty()) {
-            response.put("code", 500);
-        } else {
-            JSONObject data = new JSONObject();
-            int num = bookManager.getBooksNumber();
-            data.put("total", num);
-            data.put("books", books);
-            response.put("code", 200);
-            response.put("data", data);
+    public Response getBooks(@HeaderParam("Authorization") String token, @QueryParam("pageNum") int pageNum) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
         }
-        return response.toString();
+
+        JSONObject responseJson = new JSONObject();
+
+        if (user != null) {
+            ArrayList<Book> books = bookManager.getBooks(pageNum);
+            if (books == null || books.isEmpty()) {
+                responseJson.put("code", 500);
+            } else {
+                JSONObject data = new JSONObject();
+                int num = bookManager.getBooksNumber();
+                data.put("total", num);
+                data.put("books", books);
+                responseJson.put("code", 200);
+                responseJson.put("data", data);
+            }
+        } else {
+            responseJson.put("code", 401);
+            responseJson.put("message", "Unauthorized user");
+        }
+
+        return Response.ok().entity(responseJson.toJSONString()).build();
     }
 
 
     @GET
     @Path("search")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getBooksByTitle(@QueryParam("title") String title, @QueryParam("pageNum") int pageNum) {
-        ArrayList<Book> books = bookManager.getBooksByTitle(title, pageNum);
-        JSONObject response = new JSONObject();
-        if (books == null) {
-            response.put("code", 500);
-        } else {
-            JSONObject data = new JSONObject();
-            int num = bookManager.getBooksNumberByTitle(title);
-            data.put("total", num);
-            data.put("books", books);
-            response.put("code", 200);
-            response.put("data", data);
+    public Response getBooksByTitle(@HeaderParam("Authorization") String token, @QueryParam("title") String title, @QueryParam("pageNum") int pageNum) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
         }
-        return response.toString();
+
+        JSONObject responseJson = new JSONObject();
+
+        if (user != null) {
+            ArrayList<Book> books = bookManager.getBooksByTitle(title, pageNum);
+            if (books == null) {
+                responseJson.put("code", 500);
+            } else {
+                JSONObject data = new JSONObject();
+                int num = bookManager.getBooksNumberByTitle(title);
+                data.put("total", num);
+                data.put("books", books);
+                responseJson.put("code", 200);
+                responseJson.put("data", data);
+            }
+        } else {
+            responseJson.put("code", 401);
+            responseJson.put("message", "Unauthorized user");
+        }
+
+        return Response.ok().entity(responseJson.toJSONString()).build();
     }
 
 
     @GET
     @Path("detail")
     @Produces(MediaType.APPLICATION_JSON)
-    public Book getBookById(@QueryParam("bookId") int bookId) {
-        return bookManager.getBookById(bookId);
+    public Response getBookById(@HeaderParam("Authorization") String token, @QueryParam("bookId") int bookId) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
+        }
+
+        JSONObject responseJson = new JSONObject();
+
+        if (user != null) {
+            return Response.ok().entity(bookManager.getBookById(bookId)).build();
+        } else {
+            responseJson.put("code", 401);
+            responseJson.put("message", "Unauthorized user");
+            return Response.ok().entity(responseJson.toJSONString()).build();
+        }
     }
 
 
@@ -66,15 +111,36 @@ public class BookRest {
     @Path("create")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String addBook(Book book) {
-        JSONObject response = new JSONObject();
-        boolean flag = bookManager.addBook(book);
-        if (flag) {
-            response.put("code", 200);
-        } else {
-            response.put("code", 500);
+    public Response addBook(@HeaderParam("Authorization") String token, Book book) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
         }
-        return response.toString();
+
+        JSONObject responseJson = new JSONObject();
+
+        if (user != null) {
+            String role = user.getRole();
+
+            if (role.equals("admin")) {
+                boolean flag = bookManager.addBook(book);
+                if (flag) {
+                    responseJson.put("code", 200);
+                } else {
+                    responseJson.put("code", 500);
+                }
+            } else {
+                responseJson.put("code", 401);
+                responseJson.put("message", "Unauthorized user");
+            }
+        } else {
+            responseJson.put("code", 401);
+            responseJson.put("message", "Unauthorized user");
+        }
+
+        return Response.ok().entity(responseJson.toJSONString()).build();
     }
 
 
@@ -82,29 +148,70 @@ public class BookRest {
     @Path("update")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String updateBook(Book book) {
-        JSONObject response = new JSONObject();
-        boolean flag = bookManager.updateBook(book);
-        if (flag) {
-            response.put("code", 200);
-        } else {
-            response.put("code", 500);
+    public Response updateBook(@HeaderParam("Authorization") String token, Book book) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
         }
-        return response.toString();
+        JSONObject responseJson = new JSONObject();
+
+        if (user != null) {
+            String role = user.getRole();
+
+            if (role.equals("admin")) {
+                boolean flag = bookManager.updateBook(book);
+                if (flag) {
+                    responseJson.put("code", 200);
+                } else {
+                    responseJson.put("code", 500);
+                }
+            } else {
+                responseJson.put("code", 401);
+                responseJson.put("message", "Unauthorized user");
+            }
+        } else {
+            responseJson.put("code", 401);
+            responseJson.put("message", "Unauthorized user");
+        }
+
+        return Response.ok().entity(responseJson.toJSONString()).build();
+
     }
 
     @DELETE
     @Path("delete")
     @Produces(MediaType.APPLICATION_JSON)
-    public String deleteBook(@QueryParam("bookId") int bookId) {
-        JSONObject response = new JSONObject();
-        boolean flag = bookManager.deleteBook(bookId);
-        if (flag) {
-            response.put("code", 200);
-        } else {
-            response.put("code", 500);
+    public Response deleteBook(@HeaderParam("Authorization") String token, @QueryParam("bookId") int bookId) {
+        User user;
+        try {
+            user = TokenValidate.tokenValidate(token);
+        } catch (PermissionException e) {
+            return e.response;
         }
-        return response.toString();
+        JSONObject responseJson = new JSONObject();
+
+        if (user != null) {
+            String role = user.getRole();
+
+            if (role.equals("admin")) {
+                boolean flag = bookManager.deleteBook(bookId);
+                if (flag) {
+                    responseJson.put("code", 200);
+                } else {
+                    responseJson.put("code", 500);
+                }
+            } else {
+                responseJson.put("code", 401);
+                responseJson.put("message", "Unauthorized user");
+            }
+        } else {
+            responseJson.put("code", 401);
+            responseJson.put("message", "Unauthorized user");
+        }
+
+        return Response.ok().entity(responseJson.toJSONString()).build();
     }
 
 
