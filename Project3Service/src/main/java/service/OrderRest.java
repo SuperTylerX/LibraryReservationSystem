@@ -1,6 +1,5 @@
 package service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import impl.OrderMangerImpl;
 import impl.UserManagerImpl;
@@ -65,7 +64,10 @@ public class OrderRest {
         JSONObject responseJson = new JSONObject();
         boolean change;
         if (role.equals("admin")) {
-            change = orderManager.changeOrder(orderId, status);
+            change = orderManager.changeOrderStatus(orderId, status);
+            if (status.equals("READY")) {
+                new Thread(() -> orderManager.sendReadyEmail(orderId)).start();
+            }
         } else {
             change = orderManager.changeOrderByUser(orderId, userId);
         }

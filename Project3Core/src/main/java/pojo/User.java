@@ -5,9 +5,11 @@ import com.alibaba.fastjson.annotation.JSONField;
 public class User {
     int userId;
     String username;
-    @JSONField(serialize=false)
+    @JSONField(serialize = false)
     String password;
     String role;
+    @JSONField(serialize = false)
+    String email;
 
     public User() {
 
@@ -43,5 +45,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
