@@ -9,4 +9,7 @@ public class AppConfig {
     public static final String SMTP_SENDER = "896267775@qq.com";
     public static final String SMTP_SENDER_PASS = "lvqdkqfjprpvbcjc";
     public static final String SMTP_HOST = "smtp.qq.com";
+    public static final String BASE_URI = "https://localhost:8080/library/";
+    public static final String KEYSTORE_LOC = "Project3Service\\src\\main\\resources\\server.jks";
+    public static final String KEYSTORE_PASS = "helloworld";
 }
