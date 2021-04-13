@@ -48,6 +48,7 @@ public class UserDao {
                 user.setUserId(rs.getInt("user_id"));
                 user.setUsername(rs.getString("user_username"));
                 user.setRole(rs.getString("user_role"));
+                user.setEmail(rs.getString("user_email"));
 
                 return user;
             } else {
